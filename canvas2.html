@@ -184,7 +184,7 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     let lastX = 0;
-    let lastY = canvas.height / 3;
+  
     // Función para obtener el tamaño de una slide
     function getSlideWidth() {
       const activeSlide = document.querySelector(".splide__slide"); // Obtener una slide para medir
@@ -199,21 +199,23 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
     }
 
     // Dibuja las curvas en el canvas según el progreso y el número de curvas
-    function drawCurve(progress, totalCurves, finalX) {
+    function drawCurve(progress, totalCurves, finalX, finalY) {
       const initialX = lastX; // Empezar desde el último punto donde se quedó la curva anterior
-      const initialY = lastY; // Empezar desde la última posición Y
+      const initialY = canvas.height / 3;
       const curveHeight = canvas.height * 0.25;
 
       let curveLength = (finalX - initialX) / totalCurves;
 
+      console.log("final Y", finalY);
+
       // ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el canvas
+     
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
       ctx.strokeStyle = "#6ab04c";
       ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-
-      ctx.beginPath();
-      ctx.moveTo(initialX, initialY);
-
+      ctx.moveTo(initialX, finalY);
+      
       let currentX = initialX;
 
       for (let i = 0; i < totalCurves; i++) {
@@ -221,11 +223,10 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
         const endX = startX + curveLength;
         const midX = (startX + endX) / 2;
 
-        // if (endX >= finalX) {
+        // if (endX > finalX) {
         //   const remainingDistance = finalX - startX;
         //   const adjustedMidX = startX + remainingDistance / 2;
         //   currentX = finalX;
-        //   console.log(finalX)
 
         //   if (i % 2 === 0) {
         //     ctx.quadraticCurveTo(
@@ -250,15 +251,15 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
         } else {
           ctx.quadraticCurveTo(midX, initialY - curveHeight, endX, initialY);
         }
-        currentX = finalX;
+        currentX = endX;
       }
+
       ctx.stroke();
-      lastX = currentX; 
-      lastY = initialY// Actualizar lastX al final de la curva
+      lastX = currentX; // Actualizar lastX al final de la curva
     }
 
     // Función para animar la curva
-    function animateCurve(totalCurves, duration, finalX) {
+    function animateCurve(totalCurves, duration, finalX, finalY) {
       const startTime = performance.now();
 
       function animate(currentTime) {
@@ -266,7 +267,7 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
         const progress = Math.min(elapsedTime / duration, 1);
 
 
-        drawCurve(progress, totalCurves, finalX);
+        drawCurve(progress, totalCurves, finalX, finalY);
 
         if (progress < 1) {
           requestAnimationFrame(animate);
@@ -288,11 +289,12 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
         const buttonRect = this.getBoundingClientRect();
         const canvasRect = canvas.getBoundingClientRect();
         const finalX = buttonRect.right - canvasRect.left; // Posición X final en relación al canvas
+        const finalY = buttonRect.top - canvasRect.top; // Posición Y final en relación al canvas
         // Dibuja solo hasta el índice clicado (1 curva menos para el primer elemento)
-        const totalCurves = targetIndex;
+        const totalCurves = 2;
       
         // Llamar a la animación de la curva con el número adecuado de curvas y el finalX calculado
-        animateCurve(totalCurves, 3000, finalX); // 1000ms = 1 segundo para la animación completa
+        animateCurve(totalCurves, 3000, finalX, finalY); // 1000ms = 1 segundo para la animación completa
       });
     });
 

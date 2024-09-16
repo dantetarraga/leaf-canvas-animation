@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Línea Serpenteante</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: auto;
+        }
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="400"></canvas>
+    
+    <div class="buttons">
+        <button id="btn1">Avanzar hasta 25%</button>
+        <button id="btn2">Avanzar hasta 50%</button>
+        <button id="btn3">Avanzar hasta 75%</button>
+        <button id="btn4">Avanzar hasta 100%</button>
+    </div>
+
+    <script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let points = [];  // Almacena los puntos de la línea
+let step = 0;     // Controla el avance de la curva
+const curveLength = 40; // Cantidad de puntos por curva (para animación completa)
+let animationStartTime = 0;  // Tiempo de inicio de la animación
+let previousAnimationIndex = 0;  // Índice donde se dejó la última animación
+let targetAnimationIndex = 0;  // Índice objetivo al que debe llegar la animación
+const animationDuration = 2000; // Duración de la animación en milisegundos
+
+// Función para generar una curva ondulada (una serie de puntos)
+function generateCurve() {
+    const lastPoint = points[points.length - 1] || { x: 0, y: canvas.height / 2 };
+    
+    for (let i = 1; i <= curveLength; i++) {
+        const newX = lastPoint.x + i * 10;  // Mueve la curva hacia la derecha
+        const newY = canvas.height / 2 + Math.sin(step + i * 0.5) * 50;  // Movimiento serpenteante
+        
+        points.push({ x: newX, y: newY });
+    }
+    
+    step += curveLength * 0.5;  // Aumentar el paso para la siguiente curva
+}
+
+// Función para dibujar una línea suave usando curvas de Bézier
+function drawSmoothLine(currentIndex) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);  // Limpia el canvas
+    ctx.beginPath();
+
+    // Moverse al primer punto
+    if (points.length > 1) {
+        ctx.moveTo(points[0].x, points[0].y);
+        
+        for (let i = 1; i < currentIndex && i < points.length - 1; i++) {
+            const cpX = (points[i].x + points[i + 1].x) / 2;  // Punto de control en el medio
+            const cpY = (points[i].y + points[i + 1].y) / 2;
+            
+            // Dibujar curva Bézier hasta el siguiente punto
+            ctx.quadraticCurveTo(points[i].x, points[i].y, cpX, cpY);
+        }
+
+        // Última curva hacia el último punto animado
+        if (currentIndex < points.length) {
+            const lastPoint = points[currentIndex];
+            ctx.lineTo(lastPoint.x, lastPoint.y);
+        }
+    }
+
+    ctx.strokeStyle = 'blue';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+// Función para animar el dibujo de la curva hasta el targetAnimationIndex
+function animateCurve(timestamp) {
+    if (!animationStartTime) animationStartTime = timestamp;  // Guardar el tiempo de inicio
+    const elapsedTime = timestamp - animationStartTime;  // Calcular tiempo transcurrido
+    const progress = Math.min(elapsedTime / animationDuration, 1);  // Progreso (0 a 1)
+
+    // Calcular el índice actual basado en el progreso entre el índice anterior y el objetivo
+    const currentIndex = previousAnimationIndex + Math.floor(progress * (targetAnimationIndex - previousAnimationIndex));
+    drawSmoothLine(currentIndex);  // Dibujar hasta el punto correspondiente al progreso
+
+    if (progress < 1) {
+        requestAnimationFrame(animateCurve);  // Continuar animación
+    } else {
+        previousAnimationIndex = targetAnimationIndex;  // Guardar el índice donde terminó la animación
+        animationStartTime = 0;  // Resetear el tiempo para futuras animaciones
+    }
+}
+
+// Función para actualizar el targetAnimationIndex según el porcentaje
+function updateAnimationTarget(percentage) {
+    targetAnimationIndex = Math.floor(points.length * percentage);  // Calcula el índice objetivo basado en el porcentaje
+    requestAnimationFrame(animateCurve);  // Iniciar la animación hacia ese objetivo
+}
+
+// Agregar eventos a los botones
+document.getElementById('btn1').addEventListener('click', function() {
+    updateAnimationTarget(0.25);  // Avanzar hasta el 25%
+});
+
+document.getElementById('btn2').addEventListener('click', function() {
+    updateAnimationTarget(0.50);  // Avanzar hasta el 50%
+});
+
+document.getElementById('btn3').addEventListener('click', function() {
+    updateAnimationTarget(0.75);  // Avanzar hasta el 75%
+});
+
+document.getElementById('btn4').addEventListener('click', function() {
+    updateAnimationTarget(1);  // Avanzar hasta el 100%
+});
+
+// Genera la primera curva inicial
+generateCurve();
+drawSmoothLine(previousAnimationIndex);
+
+</script>
+</html>
