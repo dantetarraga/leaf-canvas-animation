@@ -1,0 +1,30 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button {
+  padding: 5px 20px;
+  background-color: #7f7f7f;
+  color: white;
+  border-radius: 10px;
+}
+
+.curve {
+  width: 100px;
+  height: 20px;
+  background-color: green;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+  transform: rotate(-20deg);
+}
