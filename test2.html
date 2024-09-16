@@ -16,6 +16,7 @@
       position: absolute;
       z-index: -20;
       margin: 1px solid black;
+      overflow: hidden;
     }
     .buttons {
       text-align: center;
@@ -70,6 +71,24 @@
                 <button class="build-btn" data-index="4">2000</button>
               </div>
             </li>
+            <li class="splide__slide box" data-index="5">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>Esa noche, reventaron 36 bombas en Lima...</p>
+                </div>
+                <button class="build-btn" data-index="5">1994</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="6">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>Esa noche, reventaron 36 bombas en Lima...</p>
+                </div>
+                <button class="build-btn" data-index="6">2000</button>
+              </div>
+            </li>
           </ul>
         </div>
       </div>
@@ -82,7 +101,7 @@
       document.addEventListener("DOMContentLoaded", function () {
         const splide = new Splide("#splide-prueba", {
           type: "slide",
-          perPage: 6,
+          perPage: 5,
           perMove: 1,
           gap: "2rem",
           pagination: false,
@@ -123,13 +142,14 @@
         canvas.height = splideHeight;
 
         points = []; // Limpiar puntos
-        generateCurve(canvas.width); // Generar la curva hasta el ancho del canvas
-        drawSmoothLine(targetAnimationIndex); // Redibujar la curva en el nuevo canvas
+        // generateCurve(canvas.width); // Generar la curva hasta el ancho del canvas
+        // drawSmoothLine(targetAnimationIndex); // Redibujar la curva en el nuevo canvas
       }
 
       // Función para generar la curva ondulada
       function generateCurve(maxX) {
         const lastPoint = points[points.length - 1] || { x: 0, y: canvas.height / 2 };
+        console.log(lastPoint);
 
         let i = 1;
         while (lastPoint.x + i * 10 <= maxX) {
@@ -203,7 +223,8 @@
       // Actualizar el índice objetivo basado en la posición x del botón
       function updateAnimationTarget(button) {
         const buttonX = getButtonXPosition(button);
-        points = []; // Limpiar los puntos
+        console.log(buttonX)
+        // points = []; // Limpiar los puntos
         generateCurve(buttonX); // Generar la curva hasta la posición del botón
         targetAnimationIndex = points.length - 1; // Actualizar el índice de destino
         requestAnimationFrame(animateCurve); // Iniciar la animación
