@@ -30,6 +30,7 @@
             position: absolute;
             top: 100px; /* Ajustamos la posición del canvas */
             left: 0;
+            z-index: -1;
         }
     </style>
 </head>
@@ -133,7 +134,7 @@
 
 </div>
 
-<canvas id="canvas" width="1200" height="300"></canvas>
+<canvas id="canvas" width="1500" height="300"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
 <script>
@@ -158,56 +159,72 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 </script>
 <script>
-    // Obtener el contexto del canvas
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    let initialX = 150;  // Posición inicial de X para la primera curva
-    const initialY = 150;  // Posición Y constante
-    const curveHeight = 100;  // Altura de las curvas
-    const curveLength = 200;  // Longitud de cada curva
-    let curvesDrawn = 0; // Cantidad de curvas dibujadas
+    const initialX = 150;
+    const initialY = 150;
+    const curveHeight = 100;
+    const curveLength = 200;
 
-    function drawCurve() {
+    function drawCurve(progress, totalCurves) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = '#6ab04c';
         ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(initialX, initialY);  // Punto de inicio de la curva
+        ctx.setLineDash([5, 5]);
 
-        if (curvesDrawn % 2 === 0) {
-            // Curva hacia arriba
-            ctx.quadraticCurveTo(initialX + (curveLength / 2), initialY - curveHeight, initialX + curveLength, initialY);
-        } else {
-            // Curva hacia abajo
-            ctx.quadraticCurveTo(initialX + (curveLength / 2), initialY + curveHeight, initialX + curveLength, initialY);
+        ctx.beginPath();
+        ctx.moveTo(initialX, initialY);
+
+        for (let i = 0; i < totalCurves; i++) {
+            const startX = initialX + i * curveLength;
+            const endX = startX + curveLength;
+            const midX = (startX + endX) / 2;
+
+            if (i < totalCurves - 1 || progress === 1) {
+                // Dibujar curvas completas para segmentos anteriores
+                if (i % 2 === 0) {
+                    ctx.quadraticCurveTo(midX, initialY - curveHeight, endX, initialY);
+                } else {
+                    ctx.quadraticCurveTo(midX, initialY + curveHeight, endX, initialY);
+                }
+            } else {
+                // Dibujar la última curva parcialmente
+                const currentX = startX + (endX - startX) * progress;
+                const currentMidX = startX + (midX - startX) * progress;
+                if (i % 2 === 0) {
+                    ctx.quadraticCurveTo(currentMidX, initialY - curveHeight * progress, currentX, initialY);
+                } else {
+                    ctx.quadraticCurveTo(currentMidX, initialY + curveHeight * progress, currentX, initialY);
+                }
+            }
         }
 
         ctx.stroke();
-
-        // Actualiza la posición X para la siguiente curva
-        initialX += curveLength;
-        curvesDrawn++;
     }
 
-    function resetCurves() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);  // Limpia el canvas
-        initialX = 150;  // Reinicia la posición X
-        curvesDrawn = 0;  // Reinicia la cantidad de curvas dibujadas
-    }
+    function animateCurve(totalCurves, duration) {
+        const startTime = performance.now();
 
-    // Función para dibujar el número de curvas necesarias hasta un div
-    function drawCurvesToIndex(targetIndex) {
-        resetCurves();  // Limpia el canvas y reinicia la posición
-        for (let i = 0; i < targetIndex - 1; i++) {  // Dibuja tantas curvas como el índice del div menos 1
-            drawCurve();  // Dibuja cada curva hasta llegar al div seleccionado
+        function animate(currentTime) {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+
+            drawCurve(progress, totalCurves);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
         }
+
+        requestAnimationFrame(animate);
     }
 
-
-    document.querySelectorAll('.box').forEach(box => {
-        box.addEventListener('click', function() {
-            const targetIndex = parseInt(this.getAttribute('data-index'));  // Obtener el índice del div
-            drawCurvesToIndex(targetIndex);  // Dibujar curvas hasta el div
+    document.querySelectorAll('.build-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetIndex = parseInt(this.closest('.box').getAttribute('data-index'));
+            const totalCurves = targetIndex - 1;
+            animateCurve(totalCurves, 1000); // 1000ms = 1 segundo para la animación completa
         });
     });
 </script>

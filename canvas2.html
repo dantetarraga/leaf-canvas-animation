@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas Ondulado</title>
+    <link rel="stylesheet" href="main.css" />
+    <link
+      href="
+https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
+"
+      rel="stylesheet"
+    />
+  </head>
+  <style>
+    canvas {
+      display: block;
+      background-color: transparent;
+      position: absolute;
+      z-index: -10;
+      width: 100%; /* Canvas toma todo el ancho del contenedor */
+      height: 100%; /* Canvas toma todo el alto del contenedor */
+    }
+
+    button {
+      cursor: pointer;
+    }
+  </style>
+
+  <body>
+    <div class="contenedor">
+      <div
+        class="splide"
+        id="splide-prueba"
+        aria-label="Basic Structure Example"
+      >
+        <div class="splide__track">
+          <ul class="splide__list">
+            <canvas id="canvas"></canvas>
+            <li class="splide__slide box" data-index="1">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>
+                    Esa noche, reventaron 36 bombas en Lima. El Perú estaba
+                    sumido en una crisis ocasionada por el terrorismo. Había que
+                    decidir si seguir en el Perú o dejarlo todo y viajar al
+                    extranjero.
+                  </p>
+                </div>
+                <button class="build-btn" data-progress="25">1992</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="2">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>
+                    Esa noche, reventaron 36 bombas en Lima. El Perú estaba
+                    sumido en una crisis ocasionada por el terrorismo. Había que
+                    decidir si seguir en el Perú o dejarlo todo y viajar al
+                    extranjero.
+                  </p>
+                </div>
+                <button class="build-btn" data-progress="50">1993</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="3">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>
+                    Esa noche, reventaron 36 bombas en Lima. El Perú estaba
+                    sumido en una crisis ocasionada por el terrorismo. Había que
+                    decidir si seguir en el Perú o dejarlo todo y viajar al
+                    extranjero.
+                  </p>
+                </div>
+                <button class="build-btn" data-progress="75">1994</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="4">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>
+                    Esa noche, reventaron 36 bombas en Lima. El Perú estaba
+                    sumido en una crisis ocasionada por el terrorismo. Había que
+                    decidir si seguir en el Perú o dejarlo todo y viajar al
+                    extranjero.
+                  </p>
+                </div>
+                <button class="build-btn" data-progress="100">2000</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="5">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>
+                    Esa noche, reventaron 36 bombas en Lima. El Perú estaba
+                    sumido en una crisis ocasionada por el terrorismo. Había que
+                    decidir si seguir en el Perú o dejarlo todo y viajar al
+                    extranjero.
+                  </p>
+                </div>
+                <button class="build-btn" data-progress="125">2004</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="6">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>
+                    Esa noche, reventaron 36 bombas en Lima. El Perú estaba
+                    sumido en una crisis ocasionada por el terrorismo. Había que
+                    decidir si seguir en el Perú o dejarlo todo y viajar al
+                    extranjero.
+                  </p>
+                </div>
+                <button class="build-btn" data-progress="150">2010</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="7">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>
+                    Esa noche, reventaron 36 bombas en Lima. El Perú estaba
+                    sumido en una crisis ocasionada por el terrorismo. Había que
+                    decidir si seguir en el Perú o dejarlo todo y viajar al
+                    extranjero.
+                  </p>
+                </div>
+                <button class="build-btn" data-progress="175">2022</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="8">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>
+                    Esa noche, reventaron 36 bombas en Lima. El Perú estaba
+                    sumido en una crisis ocasionada por el terrorismo. Había que
+                    decidir si seguir en el Perú o dejarlo todo y viajar al
+                    extranjero.
+                  </p>
+                </div>
+                <button class="build-btn" data-progress="200">2023</button>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script src="
+https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
+"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const splide = new Splide("#splide-prueba", {
+        type: "slide",
+        perPage: 6,
+        perMove: 1,
+        gap: "2rem",
+        pagination: false,
+        padding: {
+          left: "30px",
+          right: "40px"
+        },
+        breakpoints: {
+          420: {
+            perPage: 2,
+            perMove: 1
+          }
+        }
+      }).mount();
+    });
+  </script>
+  <!-- <script src="hoja.js"></script> -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const splide = new Splide("#splide-prueba", {
+        type: "slide",
+        perPage: 6,
+        perMove: 1,
+        gap: "2rem",
+        pagination: false,
+        padding: {
+          left: "30px",
+          right: "40px"
+        },
+        breakpoints: {
+          420: {
+            perPage: 2,
+            perMove: 1
+          }
+        }
+      }).mount();
+    });
+  </script>
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    // Función para obtener el tamaño de una slide
+    function getSlideWidth() {
+      const activeSlide = document.querySelector(".splide__slide"); // Obtener una slide para medir
+      return activeSlide.offsetWidth; // Devuelve el ancho de la slide
+    }
+
+    // Ajusta el tamaño del canvas al tamaño del contenedor
+    function resizeCanvas() {
+      canvas.width = document.querySelector(".splide").offsetWidth; // Ancho del canvas es el ancho de Splide
+      canvas.height = 300; // Puedes ajustar esta altura según necesites
+      drawInitialCanvas();
+    }
+
+    // Dibuja las curvas en el canvas según el progreso y el número de curvas
+    function drawCurve(progress, totalCurves) {
+      const initialX = 0;
+      const initialY = canvas.height * 0.5;
+      const curveHeight = canvas.height * 0.25;
+
+      // Aquí obtenemos el ancho de una slide
+      const curveLength = getSlideWidth();
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#6ab04c";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+
+      ctx.beginPath();
+      ctx.moveTo(initialX, initialY);
+
+      for (let i = 0; i < totalCurves; i++) {
+        const startX = initialX + i * curveLength;
+        const endX = startX + curveLength;
+        const midX = (startX + endX) / 2;
+
+        if (i < totalCurves - 1 || progress === 1) {
+          // Dibujar curvas completas
+          if (i % 2 === 0) {
+            ctx.quadraticCurveTo(midX, initialY - curveHeight, endX, initialY);
+          } else {
+            ctx.quadraticCurveTo(midX, initialY + curveHeight, endX, initialY);
+          }
+        } else {
+          // Dibujar parcialmente la última curva
+          const currentX = startX + (endX - startX) * progress;
+          const currentMidX = startX + (midX - startX) * progress;
+          if (i % 2 === 0) {
+            ctx.quadraticCurveTo(
+              currentMidX,
+              initialY - curveHeight * progress,
+              currentX,
+              initialY
+            );
+          } else {
+            ctx.quadraticCurveTo(
+              currentMidX,
+              initialY + curveHeight * progress,
+              currentX,
+              initialY
+            );
+          }
+        }
+      }
+
+      ctx.stroke();
+    }
+
+    // Función para animar la curva
+    function animateCurve(totalCurves, duration) {
+      const startTime = performance.now();
+
+      function animate(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+
+        drawCurve(progress, totalCurves);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    // Escuchar el click en los botones
+    document.querySelectorAll(".build-btn").forEach((button) => {
+      button.addEventListener("click", function () {
+        // Obtener el índice del botón clicado
+        const targetIndex = parseInt(
+          this.closest(".splide__slide").getAttribute("data-index")
+        );
+
+        // Dibuja solo hasta el índice clicado (1 curva menos para el primer elemento)
+        const totalCurves = targetIndex;
+
+        // Llamar a la animación de la curva con el número adecuado de curvas
+        animateCurve(totalCurves, 1000); // 1000ms = 1 segundo para la animación completa
+      });
+    });
+
+    // Redimensionar canvas al cargar la página y al cambiar el tamaño de la ventana
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas(); // Llamar a la función para establecer el tamaño inicial
+  </script>
+</html>
