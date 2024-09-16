@@ -1,135 +1,220 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Línea Serpenteante</title>
-    <style>
-        canvas {
-            border: 1px solid black;
-            display: block;
-            margin: auto;
-        }
-        .buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-        button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <canvas id="canvas" width="600" height="400"></canvas>
-    
-    <div class="buttons">
-        <button id="btn1">Avanzar hasta 25%</button>
-        <button id="btn2">Avanzar hasta 50%</button>
-        <button id="btn3">Avanzar hasta 75%</button>
-        <button id="btn4">Avanzar hasta 100%</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas a</title>
+    <link rel="stylesheet" href="main.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <style>
+    canvas {
+      background-color: transparent;
+      position: absolute;
+      z-index: -20;
+      margin: 1px solid black;
+    }
+    .buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+  </style>
+
+  <body>
+    <div class="contenedor">
+      <div class="splide" id="splide-prueba" aria-label="Basic Structure Example">
+        <div class="splide__track">
+          <ul class="splide__list">
+            <canvas id="canvas"></canvas>
+            <li class="splide__slide box" data-index="1">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>Esa noche, reventaron 36 bombas en Lima...</p>
+                </div>
+                <button class="build-btn" data-index="1">1992</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="2">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>Esa noche, reventaron 36 bombas en Lima...</p>
+                </div>
+                <button class="build-btn" data-index="2">1993</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="3">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>Esa noche, reventaron 36 bombas en Lima...</p>
+                </div>
+                <button class="build-btn" data-index="3">1994</button>
+              </div>
+            </li>
+            <li class="splide__slide box" data-index="4">
+              <div class="history">
+                <div class="info">
+                  <h3>Antes del origen</h3>
+                  <p>Esa noche, reventaron 36 bombas en Lima...</p>
+                </div>
+                <button class="build-btn" data-index="4">2000</button>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+
     <script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+      // Inicializar Splide
+      document.addEventListener("DOMContentLoaded", function () {
+        const splide = new Splide("#splide-prueba", {
+          type: "slide",
+          perPage: 6,
+          perMove: 1,
+          gap: "2rem",
+          pagination: false,
+          padding: {
+            left: "30px",
+            right: "40px"
+          },
+          breakpoints: {
+            420: {
+              perPage: 2,
+              perMove: 1
+            }
+          }
+        }).mount();
 
-let points = [];  // Almacena los puntos de la línea
-let step = 0;     // Controla el avance de la curva
-const curveLength = 40; // Cantidad de puntos por curva (para animación completa)
-let animationStartTime = 0;  // Tiempo de inicio de la animación
-let previousAnimationIndex = 0;  // Índice donde se dejó la última animación
-let targetAnimationIndex = 0;  // Índice objetivo al que debe llegar la animación
-const animationDuration = 2000; // Duración de la animación en milisegundos
+        adjustCanvasSize(); // Ajustar el tamaño del canvas al cargar la página
+        window.addEventListener("resize", adjustCanvasSize); // Ajustar el tamaño al redimensionar la ventana
+      });
 
-// Función para generar una curva ondulada (una serie de puntos)
-function generateCurve() {
-    const lastPoint = points[points.length - 1] || { x: 0, y: canvas.height / 2 };
-    
-    for (let i = 1; i <= curveLength; i++) {
-        const newX = lastPoint.x + i * 10;  // Mueve la curva hacia la derecha
-        const newY = canvas.height / 2 + Math.sin(step + i * 0.5) * 50;  // Movimiento serpenteante
-        
-        points.push({ x: newX, y: newY });
-    }
-    
-    step += curveLength * 0.5;  // Aumentar el paso para la siguiente curva
-}
+      // Obtener el canvas y su contexto
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
 
-// Función para dibujar una línea suave usando curvas de Bézier
-function drawSmoothLine(currentIndex) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);  // Limpia el canvas
-    ctx.beginPath();
+      let points = []; // Almacena los puntos de la línea
+      let step = 0; // Controla el avance de la curva
+      let animationStartTime = 0; // Tiempo de inicio de la animación
+      let previousAnimationIndex = 0; // Índice donde se dejó la última animación
+      let targetAnimationIndex = 0; // Índice objetivo al que debe llegar la animación
+      const animationDuration = 1000; // Duración de la animación en milisegundos
 
-    // Moverse al primer punto
-    if (points.length > 1) {
-        ctx.moveTo(points[0].x, points[0].y);
-        
-        for (let i = 1; i < currentIndex && i < points.length - 1; i++) {
-            const cpX = (points[i].x + points[i + 1].x) / 2;  // Punto de control en el medio
-            const cpY = (points[i].y + points[i + 1].y) / 2;
-            
-            // Dibujar curva Bézier hasta el siguiente punto
-            ctx.quadraticCurveTo(points[i].x, points[i].y, cpX, cpY);
+      // Función para ajustar el tamaño del canvas al tamaño del primer .splide__slide
+      function adjustCanvasSize() {
+        const splide = document.querySelector(".splide");
+        const splideWidth = splide.offsetWidth;
+        const splideHeight = 300;
+
+        canvas.width = splideWidth;
+        canvas.height = splideHeight;
+
+        points = []; // Limpiar puntos
+        generateCurve(canvas.width); // Generar la curva hasta el ancho del canvas
+        drawSmoothLine(targetAnimationIndex); // Redibujar la curva en el nuevo canvas
+      }
+
+      // Función para generar la curva ondulada
+      function generateCurve(maxX) {
+        const lastPoint = points[points.length - 1] || { x: 0, y: canvas.height / 2 };
+
+        let i = 1;
+        while (lastPoint.x + i * 10 <= maxX) {
+          const newX = lastPoint.x + i * 10; // Mueve la curva hacia la derecha
+          const newY = canvas.height / 2 + Math.sin(step + i * 0.5) * 50; // Movimiento ondulado
+
+          points.push({ x: newX, y: newY });
+          i++;
         }
 
-        // Última curva hacia el último punto animado
-        if (currentIndex < points.length) {
+        step += i * 0.5; // Aumenta el paso para la siguiente curva
+      }
+
+      // Dibuja una línea suave usando curvas Bézier
+      function drawSmoothLine(currentIndex) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas
+        ctx.beginPath();
+
+        // Dibujar la curva hasta el punto actual
+        if (points.length > 1) {
+          ctx.moveTo(points[0].x, points[0].y);
+
+          for (let i = 1; i < currentIndex && i < points.length - 1; i++) {
+            const cpX = (points[i].x + points[i + 1].x) / 2; // Punto de control en el medio
+            const cpY = (points[i].y + points[i + 1].y) / 2;
+
+            // Dibuja curva Bézier hasta el siguiente punto
+            ctx.quadraticCurveTo(points[i].x, points[i].y, cpX, cpY);
+          }
+
+          // Última línea hacia el último punto animado
+          if (currentIndex < points.length) {
             const lastPoint = points[currentIndex];
             ctx.lineTo(lastPoint.x, lastPoint.y);
+          }
         }
-    }
 
-    ctx.strokeStyle = 'blue';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-}
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
 
-// Función para animar el dibujo de la curva hasta el targetAnimationIndex
-function animateCurve(timestamp) {
-    if (!animationStartTime) animationStartTime = timestamp;  // Guardar el tiempo de inicio
-    const elapsedTime = timestamp - animationStartTime;  // Calcular tiempo transcurrido
-    const progress = Math.min(elapsedTime / animationDuration, 1);  // Progreso (0 a 1)
+      // Función para animar la curva hasta el índice de destino
+      function animateCurve(timestamp) {
+        if (!animationStartTime) animationStartTime = timestamp; // Guardar el tiempo de inicio
+        const elapsedTime = timestamp - animationStartTime; // Calcular el tiempo transcurrido
+        const progress = Math.min(elapsedTime / animationDuration, 1); // Progreso (0 a 1)
 
-    // Calcular el índice actual basado en el progreso entre el índice anterior y el objetivo
-    const currentIndex = previousAnimationIndex + Math.floor(progress * (targetAnimationIndex - previousAnimationIndex));
-    drawSmoothLine(currentIndex);  // Dibujar hasta el punto correspondiente al progreso
+        // Calcular el índice actual basado en el progreso
+        const currentIndex = previousAnimationIndex + Math.floor(progress * (targetAnimationIndex - previousAnimationIndex));
+        drawSmoothLine(currentIndex); // Dibujar hasta el punto correspondiente al progreso
 
-    if (progress < 1) {
-        requestAnimationFrame(animateCurve);  // Continuar animación
-    } else {
-        previousAnimationIndex = targetAnimationIndex;  // Guardar el índice donde terminó la animación
-        animationStartTime = 0;  // Resetear el tiempo para futuras animaciones
-    }
-}
+        if (progress < 1) {
+          requestAnimationFrame(animateCurve); // Continuar la animación
+        } else {
+          previousAnimationIndex = targetAnimationIndex; // Guardar el índice donde terminó la animación
+          animationStartTime = 0; // Resetear el tiempo para futuras animaciones
+        }
+      }
 
-// Función para actualizar el targetAnimationIndex según el porcentaje
-function updateAnimationTarget(percentage) {
-    targetAnimationIndex = Math.floor(points.length * percentage);  // Calcula el índice objetivo basado en el porcentaje
-    requestAnimationFrame(animateCurve);  // Iniciar la animación hacia ese objetivo
-}
+      // Función para obtener la posición del botón en el eje x
+      function getButtonXPosition(button) {
+        const rect = button.getBoundingClientRect();
+        const splide = document.querySelector(".splide");
+        const splideRect = splide.getBoundingClientRect();
 
-// Agregar eventos a los botones
-document.getElementById('btn1').addEventListener('click', function() {
-    updateAnimationTarget(0.25);  // Avanzar hasta el 25%
-});
+        // Devuelve la posición x relativa al canvas (resta la posición x del splide)
+        return rect.left - splideRect.left;
+      }
 
-document.getElementById('btn2').addEventListener('click', function() {
-    updateAnimationTarget(0.50);  // Avanzar hasta el 50%
-});
+      // Actualizar el índice objetivo basado en la posición x del botón
+      function updateAnimationTarget(button) {
+        const buttonX = getButtonXPosition(button);
+        points = []; // Limpiar los puntos
+        generateCurve(buttonX); // Generar la curva hasta la posición del botón
+        targetAnimationIndex = points.length - 1; // Actualizar el índice de destino
+        requestAnimationFrame(animateCurve); // Iniciar la animación
+      }
 
-document.getElementById('btn3').addEventListener('click', function() {
-    updateAnimationTarget(0.75);  // Avanzar hasta el 75%
-});
-
-document.getElementById('btn4').addEventListener('click', function() {
-    updateAnimationTarget(1);  // Avanzar hasta el 100%
-});
-
-// Genera la primera curva inicial
-generateCurve();
-drawSmoothLine(previousAnimationIndex);
-
-</script>
+      // Asignar eventos a los botones dentro de las diapositivas
+      document.querySelectorAll(".build-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          updateAnimationTarget(button); // Actualizar el índice de la animación con la posición del botón
+        });
+      });
+    </script>
+  </body>
 </html>
