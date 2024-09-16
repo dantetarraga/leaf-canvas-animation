@@ -31,7 +31,11 @@
 
   <body>
     <div class="contenedor">
-      <div class="splide" id="splide-prueba" aria-label="Basic Structure Example">
+      <div
+        class="splide"
+        id="splide-prueba"
+        aria-label="Basic Structure Example"
+      >
         <div class="splide__track">
           <ul class="splide__list">
             <canvas id="canvas"></canvas>
@@ -146,21 +150,28 @@
         // drawSmoothLine(targetAnimationIndex); // Redibujar la curva en el nuevo canvas
       }
 
-      // Función para generar la curva ondulada
+      // Función para generar una curva ondulada que varía hacia arriba y hacia abajo entre dos puntos
       function generateCurve(maxX) {
-        const lastPoint = points[points.length - 1] || { x: 0, y: canvas.height / 2 };
-        console.log(lastPoint);
+        const lastPoint = points[points.length - 1] || {
+          x: 0,
+          y: canvas.height / 2
+        };
+        const distance = maxX - lastPoint.x; // Calcular la distancia entre el último punto y el nuevo
 
-        let i = 1;
-        while (lastPoint.x + i * 10 <= maxX) {
-          const newX = lastPoint.x + i * 10; // Mueve la curva hacia la derecha
-          const newY = canvas.height / 2 + Math.sin(step + i * 0.5) * 50; // Movimiento ondulado
+        const waveFrequency = 0.02; // Frecuencia de las ondas (ajustable para más o menos oscilaciones)
+        const amplitude = 50; // Amplitud de la onda (ajustable para que suba o baje más)
+
+        let i = 0;
+        while (lastPoint.x + i <= maxX) {
+          const newX = lastPoint.x + i; // Mover la curva hacia la derecha
+          const newY =
+            canvas.height / 2 + Math.sin(step + i * waveFrequency) * amplitude; // Movimiento ondulado
 
           points.push({ x: newX, y: newY });
-          i++;
+          i += 10; // Incrementar en pasos de 10 (ajustar para suavidad)
         }
 
-        step += i * 0.5; // Aumenta el paso para la siguiente curva
+        step += i * waveFrequency; // Aumenta el paso para la siguiente curva
       }
 
       // Dibuja una línea suave usando curvas Bézier
@@ -190,6 +201,7 @@
         ctx.strokeStyle = "blue";
         ctx.lineWidth = 2;
         ctx.stroke();
+        ctx.setLineDash([15, 15]);
       }
 
       // Función para animar la curva hasta el índice de destino
@@ -199,7 +211,11 @@
         const progress = Math.min(elapsedTime / animationDuration, 1); // Progreso (0 a 1)
 
         // Calcular el índice actual basado en el progreso
-        const currentIndex = previousAnimationIndex + Math.floor(progress * (targetAnimationIndex - previousAnimationIndex));
+        const currentIndex =
+          previousAnimationIndex +
+          Math.floor(
+            progress * (targetAnimationIndex - previousAnimationIndex)
+          );
         drawSmoothLine(currentIndex); // Dibujar hasta el punto correspondiente al progreso
 
         if (progress < 1) {
@@ -223,7 +239,7 @@
       // Actualizar el índice objetivo basado en la posición x del botón
       function updateAnimationTarget(button) {
         const buttonX = getButtonXPosition(button);
-        console.log(buttonX)
+        console.log(buttonX);
         // points = []; // Limpiar los puntos
         generateCurve(buttonX); // Generar la curva hasta la posición del botón
         targetAnimationIndex = points.length - 1; // Actualizar el índice de destino
