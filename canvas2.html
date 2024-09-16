@@ -158,27 +158,6 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css
   <script src="
 https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
 "></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const splide = new Splide("#splide-prueba", {
-        type: "slide",
-        perPage: 6,
-        perMove: 1,
-        gap: "2rem",
-        pagination: false,
-        padding: {
-          left: "30px",
-          right: "40px"
-        },
-        breakpoints: {
-          420: {
-            perPage: 2,
-            perMove: 1
-          }
-        }
-      }).mount();
-    });
-  </script>
   <!-- <script src="hoja.js"></script> -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -204,7 +183,8 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
   <script>
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
-
+    let lastX = 0;
+    let lastY = canvas.height / 3;
     // Función para obtener el tamaño de una slide
     function getSlideWidth() {
       const activeSlide = document.querySelector(".splide__slide"); // Obtener una slide para medir
@@ -219,15 +199,14 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
     }
 
     // Dibuja las curvas en el canvas según el progreso y el número de curvas
-    function drawCurve(progress, totalCurves) {
-      const initialX = 0;
-      const initialY = canvas.height * 0.5;
+    function drawCurve(progress, totalCurves, finalX) {
+      const initialX = lastX; // Empezar desde el último punto donde se quedó la curva anterior
+      const initialY = lastY; // Empezar desde la última posición Y
       const curveHeight = canvas.height * 0.25;
 
-      // Aquí obtenemos el ancho de una slide
-      const curveLength = getSlideWidth();
+      let curveLength = (finalX - initialX) / totalCurves;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el canvas
       ctx.strokeStyle = "#6ab04c";
       ctx.lineWidth = 2;
       ctx.setLineDash([5, 5]);
@@ -235,52 +214,59 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
       ctx.beginPath();
       ctx.moveTo(initialX, initialY);
 
+      let currentX = initialX;
+
       for (let i = 0; i < totalCurves; i++) {
         const startX = initialX + i * curveLength;
         const endX = startX + curveLength;
         const midX = (startX + endX) / 2;
 
-        if (i < totalCurves - 1 || progress === 1) {
-          // Dibujar curvas completas
-          if (i % 2 === 0) {
-            ctx.quadraticCurveTo(midX, initialY - curveHeight, endX, initialY);
-          } else {
-            ctx.quadraticCurveTo(midX, initialY + curveHeight, endX, initialY);
-          }
-        } else {
-          // Dibujar parcialmente la última curva
-          const currentX = startX + (endX - startX) * progress;
-          const currentMidX = startX + (midX - startX) * progress;
-          if (i % 2 === 0) {
-            ctx.quadraticCurveTo(
-              currentMidX,
-              initialY - curveHeight * progress,
-              currentX,
-              initialY
-            );
-          } else {
-            ctx.quadraticCurveTo(
-              currentMidX,
-              initialY + curveHeight * progress,
-              currentX,
-              initialY
-            );
-          }
-        }
-      }
+        // if (endX >= finalX) {
+        //   const remainingDistance = finalX - startX;
+        //   const adjustedMidX = startX + remainingDistance / 2;
+        //   currentX = finalX;
+        //   console.log(finalX)
 
+        //   if (i % 2 === 0) {
+        //     ctx.quadraticCurveTo(
+        //       adjustedMidX,
+        //       initialY + curveHeight,
+        //       currentX,
+        //       initialY
+        //     );
+        //   } else {
+        //     ctx.quadraticCurveTo(
+        //       adjustedMidX,
+        //       initialY - curveHeight,
+        //       currentX,
+        //       initialY
+        //     );
+        //   }
+        //   break;
+        // }
+
+        if (i % 2 === 0) {
+          ctx.quadraticCurveTo(midX, initialY + curveHeight, endX, initialY);
+        } else {
+          ctx.quadraticCurveTo(midX, initialY - curveHeight, endX, initialY);
+        }
+        currentX = finalX;
+      }
       ctx.stroke();
+      lastX = currentX; 
+      lastY = initialY// Actualizar lastX al final de la curva
     }
 
     // Función para animar la curva
-    function animateCurve(totalCurves, duration) {
+    function animateCurve(totalCurves, duration, finalX) {
       const startTime = performance.now();
 
       function animate(currentTime) {
         const elapsedTime = currentTime - startTime;
         const progress = Math.min(elapsedTime / duration, 1);
 
-        drawCurve(progress, totalCurves);
+
+        drawCurve(progress, totalCurves, finalX);
 
         if (progress < 1) {
           requestAnimationFrame(animate);
@@ -298,16 +284,19 @@ https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js
           this.closest(".splide__slide").getAttribute("data-index")
         );
 
+        // Obtener la posición del botón en el canvas
+        const buttonRect = this.getBoundingClientRect();
+        const canvasRect = canvas.getBoundingClientRect();
+        const finalX = buttonRect.right - canvasRect.left; // Posición X final en relación al canvas
         // Dibuja solo hasta el índice clicado (1 curva menos para el primer elemento)
         const totalCurves = targetIndex;
-
-        // Llamar a la animación de la curva con el número adecuado de curvas
-        animateCurve(totalCurves, 1000); // 1000ms = 1 segundo para la animación completa
+      
+        // Llamar a la animación de la curva con el número adecuado de curvas y el finalX calculado
+        animateCurve(totalCurves, 3000, finalX); // 1000ms = 1 segundo para la animación completa
       });
     });
 
-    // Redimensionar canvas al cargar la página y al cambiar el tamaño de la ventana
     window.addEventListener("resize", resizeCanvas);
-    resizeCanvas(); // Llamar a la función para establecer el tamaño inicial
+    resizeCanvas();
   </script>
 </html>
